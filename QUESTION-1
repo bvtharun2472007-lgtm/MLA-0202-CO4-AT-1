@@ -1,0 +1,31 @@
+# Name: B.V. Tharun
+# Question 1: Bayesian Network for Disease Prediction
+P_Obesity = {
+    "Yes": 0.30,
+    "No": 0.70
+}
+P_Sugar = {
+    "Yes": 0.40,
+    "No": 0.60
+}
+P_Diabetes = {
+    ("Yes", "Yes"): 0.90,
+    ("Yes", "No"): 0.50,
+    ("No", "Yes"): 0.60,
+    ("No", "No"): 0.05
+}
+obesity = "Yes"
+sugar = "Yes"
+probability = P_Diabetes[(obesity, sugar)]
+print("Name: B.V. Tharun")
+print("\nBAYESIAN NETWORK - DISEASE PREDICTION")
+print("---------------------------------------")
+print("Obesity:", obesity)
+print("High Blood Sugar:", sugar)
+print("Probability of Diabetes:", probability)
+print("Probability (%):", probability * 100, "%")
+
+if probability >= 0.5:
+    print("Prediction: Diabetes is likely")
+else:
+    print("Prediction: Diabetes is unlikely")

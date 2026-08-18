@@ -1,0 +1,148 @@
+print("B.V.THARUN")
+
+import matplotlib.pyplot as plt
+
+# Dataset
+data = [
+    ["Young",  "Low",    "Bike", "Yes"],
+    ["Young",  "High",   "Car",  "No"],
+    ["Middle", "Medium", "Car",  "Yes"],
+    ["Middle", "High",   "Car",  "Yes"],
+    ["Old",    "Low",    "Bike", "Yes"],
+    ["Old",    "High",   "Car",  "No"],
+    ["Young",  "Medium", "Bike", "Yes"],
+    ["Middle", "Low",    "Car",  "Yes"],
+    ["Old",    "High",   "Car",  "No"],
+    ["Young",  "Low",    "Bike", "Yes"]
+]
+
+print("BAYESIAN NETWORK LEARNING")
+print("-------------------------")
+
+age_claim = {}
+income_claim = {}
+vehicle_claim = {}
+
+for age, income, vehicle, claim in data:
+
+    if age not in age_claim:
+        age_claim[age] = {"Yes": 0, "No": 0}
+
+    if income not in income_claim:
+        income_claim[income] = {"Yes": 0, "No": 0}
+
+    if vehicle not in vehicle_claim:
+        vehicle_claim[vehicle] = {"Yes": 0, "No": 0}
+
+    age_claim[age][claim] += 1
+    income_claim[income][claim] += 1
+    vehicle_claim[vehicle][claim] += 1
+print("\nLearned Network Structure:")
+print("Age -> Insurance Claim")
+print("Income -> Insurance Claim")
+print("Vehicle -> Insurance Claim")
+new_age = "Young"
+new_income = "Low"
+new_vehicle = "Bike"
+age_yes = (
+    age_claim[new_age]["Yes"] /
+    sum(age_claim[new_age].values())
+)
+
+age_no = (
+    age_claim[new_age]["No"] /
+    sum(age_claim[new_age].values())
+)
+
+income_yes = (
+    income_claim[new_income]["Yes"] /
+    sum(income_claim[new_income].values())
+)
+
+income_no = (
+    income_claim[new_income]["No"] /
+    sum(income_claim[new_income].values())
+)
+
+vehicle_yes = (
+    vehicle_claim[new_vehicle]["Yes"] /
+    sum(vehicle_claim[new_vehicle].values())
+)
+
+vehicle_no = (
+    vehicle_claim[new_vehicle]["No"] /
+    sum(vehicle_claim[new_vehicle].values())
+)
+
+yes_score = age_yes * income_yes * vehicle_yes
+no_score = age_no * income_no * vehicle_no
+
+total = yes_score + no_score
+
+if total > 0:
+    yes_probability = yes_score / total
+    no_probability = no_score / total
+else:
+    yes_probability = 0
+    no_probability = 0
+
+print("\nNew Customer:")
+print("Age     :", new_age)
+print("Income  :", new_income)
+print("Vehicle :", new_vehicle)
+
+print("\nPrediction:")
+print("Claim = Yes :", round(yes_probability, 3))
+print("Claim = No  :", round(no_probability, 3))
+
+if yes_probability > no_probability:
+    print("Final Prediction: YES")
+else:
+    print("Final Prediction: NO")
+
+plt.figure(figsize=(10, 6))
+positions = {
+    "Age": (1, 2),
+    "Income": (3, 2),
+    "Vehicle": (5, 2),
+    "Insurance Claim": (3, 0.8)
+}
+for node, (x, y) in positions.items():
+
+    plt.scatter(
+        x, y,
+        s=3000
+    )
+
+    plt.text(
+        x, y,
+        node,
+        ha="center",
+        va="center",
+        fontsize=11,
+        fontweight="bold"
+    )
+parents = ["Age", "Income", "Vehicle"]
+
+for parent in parents:
+
+    plt.annotate(
+        "",
+        xy=positions["Insurance Claim"],
+        xytext=positions[parent],
+        arrowprops=dict(
+            arrowstyle="->",
+            linewidth=2
+        )
+    )
+
+plt.title(
+    "Learned Bayesian Network\n"
+    "Age, Income and Vehicle → Insurance Claim",
+    fontsize=14
+)
+
+plt.xlim(0, 6)
+plt.ylim(0, 3)
+plt.axis("off")
+plt.show()

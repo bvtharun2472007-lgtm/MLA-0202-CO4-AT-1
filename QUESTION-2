@@ -1,0 +1,55 @@
+ PRINT( "B.V. Tharun")
+states = ["Sunny", "Cloudy", "Rainy"]
+observations = ["Dry", "Dry", "Wet", "Wet"]
+initial = {
+    "Sunny": 0.5,
+    "Cloudy": 0.3,
+    "Rainy": 0.2
+}
+transition = {
+    "Sunny":  {"Sunny": 0.6, "Cloudy": 0.3, "Rainy": 0.1},
+    "Cloudy": {"Sunny": 0.2, "Cloudy": 0.5, "Rainy": 0.3},
+    "Rainy":  {"Sunny": 0.1, "Cloudy": 0.3, "Rainy": 0.6}
+}
+emission = {
+    "Sunny":  {"Dry": 0.9, "Wet": 0.1},
+    "Cloudy": {"Dry": 0.5, "Wet": 0.5},
+    "Rainy":  {"Dry": 0.1, "Wet": 0.9}
+}
+V = [{}]
+path = {}
+for state in states:
+    V[0][state] = initial[state] * emission[state][observations[0]]
+    path[state] = [state]
+for t in range(1, len(observations)):
+    V.append({})
+    new_path = {}
+
+for current in states:
+        best_probability = -1
+        best_previous = None
+
+  for previous in states:
+            probability = (
+                V[t - 1][previous]
+                * transition[previous][current]
+                * emission[current][observations[t]]
+            )
+
+  if probability > best_probability:
+                best_probability = probability
+                best_previous = previous
+
+        V[t][current] = best_probability
+        new_path[current] = path[best_previous] + [current]
+
+    path = new_path
+best_state = max(states, key=lambda state: V[-1][state])
+best_probability = V[-1][best_state]
+best_path = path[best_state]
+print("Name: B.V. Tharun")
+print("\nHIDDEN MARKOV MODEL - WEATHER PREDICTION")
+print("-----------------------------------------")
+print("Observations:", observations)
+print("Predicted Hidden States:", best_path)
+print("Probability:", round(best_probability, 6))

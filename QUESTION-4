@@ -1,0 +1,100 @@
+import sklearn_crfsuite
+import matplotlib.pyplot as plt
+from collections import Counter
+print("NAME: B.V. THARUN")
+print("REGISTER NO: 192525155")
+print("CONDITIONAL RANDOM FIELD - NAMED ENTITY RECOGNITION")
+print("-" * 60)
+def word_features(sentence, i):
+   word = sentence[i]
+    features = {
+        "word.lower()": word.lower(),
+        "word.isupper()": word.isupper(),
+        "word.istitle()": word.istitle(),
+        "word.isdigit()": word.isdigit(),
+        "word.length": len(word)
+    }
+    if i > 0:
+        features["previous_word"] = sentence[i - 1].lower()
+    else:
+        features["BOS"] = True
+    if i < len(sentence) - 1:
+        features["next_word"] = sentence[i + 1].lower()
+    else:
+        features["EOS"] = True
+
+    return features
+sentences = [
+    ["John", "ordered", "Laptop", "from", "Amazon", "Order123"],
+    ["Mary", "bought", "iPhone", "Order456"],
+    ["David", "placed", "Headphones", "Order789"],
+    ["Alice", "ordered", "Tablet", "Order111"],
+    ["Robert", "bought", "Camera", "Order222"],
+    ["Sophia", "ordered", "Keyboard", "Order333"]
+]
+labels = [
+    ["B-CUSTOMER", "O", "B-PRODUCT", "O", "B-PRODUCT", "B-ORDER"],
+    ["B-CUSTOMER", "O", "B-PRODUCT", "B-ORDER"],
+    ["B-CUSTOMER", "O", "B-PRODUCT", "B-ORDER"],
+    ["B-CUSTOMER", "O", "B-PRODUCT", "B-ORDER"],
+    ["B-CUSTOMER", "O", "B-PRODUCT", "B-ORDER"],
+    ["B-CUSTOMER", "O", "B-PRODUCT", "B-ORDER"]
+]
+X_train = []
+for sentence in sentences:
+    features = []
+    for i in range(len(sentence)):
+        features.append(word_features(sentence, i))
+
+    X_train.append(features)
+
+y_train = labels
+crf = sklearn_crfsuite.CRF(
+    algorithm="lbfgs",
+    c1=0.1,
+    c2=0.1,
+    max_iterations=100,
+    all_possible_transitions=True
+)
+crf.fit(X_train, y_train)
+print("\nCRF Model Training Completed Successfully.")
+test_sentence = [
+    "Peter",
+    "ordered",
+    "MacBook",
+    "Order999"
+]
+X_test = [
+    [word_features(test_sentence, i)
+     for i in range(len(test_sentence))]
+]
+prediction = crf.predict(X_test)[0]
+print("\nNew Sentence:")
+print(" ".join(test_sentence))
+print("\nPredicted Labels:")
+print("-" * 40)
+for word, label in zip(test_sentence, prediction):
+    print(f"{word:15} -> {label}")
+print("\nRecognized Entities:")
+print("-" * 40)
+for word, label in zip(test_sentence, prediction):
+    if label == "B-CUSTOMER":
+        print(f"Customer Name : {word}")
+    elif label == "B-PRODUCT":
+        print(f"Product Name  : {word}")
+   elif label == "B-ORDER":
+        print(f"Order ID      : {word}")
+label_count = Counter(prediction)
+print("\nLabel Distribution:")
+print(label_count)
+labels_graph = list(label_count.keys())
+values_graph = list(label_count.values())
+plt.figure(figsize=(8, 5))
+plt.bar(labels_graph, values_graph)
+plt.xlabel("Entity Label")
+plt.ylabel("Number of Words")
+plt.title("CRF Named Entity Recognition")
+for i, value in enumerate(values_graph):
+    plt.text(i, value + 0.05, str(value), ha="center")
+plt.tight_layout()
+plt.show()

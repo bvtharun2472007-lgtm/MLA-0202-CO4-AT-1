@@ -1,0 +1,47 @@
+import numpy as np
+print("NAME: B.V. THARUN")
+print("REGISTER NO: 192525155")
+print("MARKOV RANDOM FIELD - IMAGE DENOISING")
+print("-" * 50)
+image = np.array([
+    [50, 52, 49, 51],
+    [51, 200, 53, 50],
+    [48, 50, 180, 52],
+    [49, 51, 50, 53]
+], dtype=float)
+
+print("\nOriginal Image:")
+print(image.astype(int))
+updated = image.copy()
+rows, cols = image.shape
+for i in range(rows):
+    for j in range(cols):
+        neighbors = []
+        if i > 0:
+            neighbors.append(image[i - 1][j])
+      if i < rows - 1:
+            neighbors.append(image[i + 1][j])
+        if j > 0:
+            neighbors.append(image[i][j - 1])
+        if j < cols - 1:
+            neighbors.append(image[i][j + 1])
+        updated[i][j] = np.mean(neighbors)
+
+print("\nUpdated Image After One MRF Smoothing Iteration:")
+print(np.round(updated).astype(int))
+print("\nPixel Neighbour Relationships:")
+for i in range(rows):
+    for j in range(cols):
+        neighbors = []
+        if i > 0:
+            neighbors.append((i - 1, j))
+        if i < rows - 1:
+            neighbors.append((i + 1, j))
+
+        if j > 0:
+            neighbors.append((i, j - 1))
+
+        if j < cols - 1:
+            neighbors.append((i, j + 1))
+
+        print(f"Pixel ({i},{j}) -> {neighbors}")
